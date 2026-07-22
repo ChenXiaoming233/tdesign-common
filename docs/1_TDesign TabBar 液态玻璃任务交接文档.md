@@ -77,119 +77,49 @@
 | [liquid-glass-vue](https://github.com/WXperia/liquid-glass-vue) | Vue 组件接口拆分方向 | 源码、SSR 不安全实现；仓库缺少完整 LICENSE 文件 |
 | [liquid-glass-studio](https://github.com/iyinchao/liquid-glass-studio) | 仅用于视觉观察 | WebGL2/WebGPU，体积和复杂度不适合 TDesign |
 
-浏览器结论：SVG URL filter 用于 backdrop 折射主要视为 Chromium 渐进增强；Safari、iOS、Firefox 必须得到完整 CSS 玻璃 fallback，不能宣传为支持真实折射。
+浏览器结论：SVG URL filter 用于 backdrop 折射只作为 Chromium 渐进增强。Safari、iOS、Firefox 和未验证环境不承诺真实折射；支持 `backdrop-filter` 时提供 CSS 玻璃材质，不支持时提供高不透明度可读基底。
 
 ## 5. 已锁定的技术决策
 
 ### Public API
 
 - 新增 `effect?: 'normal' | 'glass'`，默认 `normal`。
-- 保留 `shape?: 'normal' | 'round'`，不增加 `round-glass`。
-- 仅 `effect="glass" + shape="round"` 激活玻璃外壳；`theme` 只控制选中项使用普通内容态或 `tag` 内胶囊。
+- 保留 `shape?: 'normal' | 'round'`，不增加 `round-glass`；`shape` 决定轮廓，`effect` 决定材质。
+- 仅 `effect="glass" + shape="round"` 激活玻璃外壳；`theme` 只决定选中项使用普通内容态或 `tag` 内胶囊。
 - 无效组合按普通模式渲染，不添加 glass class、SVG 或警告。
+- glass 有效组合在样式层屏蔽 TabBarItem 的 split hairline，但不修改 `split` prop、对应 class 或运行时状态；移除 glass 后原有分割线行为立即恢复，其他模式完全不受影响。
 - 不增加背景图片、filter id、折射强度等 props。
-- 不采用调用方提供背景副本、滤镜 ID 或背景定位的方案；这会要求业务同步滚动、尺寸、主题和动态背景，降低组件泛用性，并把浏览器实现细节暴露给调用方。
+- 不采用调用方提供背景副本、滤镜 ID 或背景定位的方案，避免把滚动、尺寸、主题同步和浏览器实现细节转嫁给业务。
 
-### CSS variables
+### 定制面
 
-新增以下 9 个 CSS variables 作为最小定制面；现有 TabBar CSS variables 保持不变：
+新增 9 个公开 CSS variables，覆盖玻璃基底、边框、高光、阴影、blur、saturate、边缘宽度和选中内胶囊；现有 TabBar CSS variables 保持不变。变量的准确名称、职责和默认值以[实施计划](./2_TabBar%20液态玻璃双仓库实现计划.md#public-api)为唯一依据，不在本文重复维护。
 
-- `--td-tab-bar-glass-bg-color`
-- `--td-tab-bar-glass-border-color`
-- `--td-tab-bar-glass-highlight-color`
-- `--td-tab-bar-glass-shadow`
-- `--td-tab-bar-glass-blur`
-- `--td-tab-bar-glass-saturate`
-- `--td-tab-bar-glass-edge-width`
-- `--td-tab-bar-glass-active-bg-color`
-- `--td-tab-bar-glass-active-border-color`
+### 三级能力边界
 
-### 能力边界
+1. **可读基底**：不依赖 CSS custom properties、`@supports` 或 `backdrop-filter` 的高不透明度背景，覆盖旧浏览器；light/dark 都使用直接 CSS 属性，并保证 blur 能力块内的主题规则能够重新覆盖该静态背景。
+2. **CSS 玻璃 fallback**：检测到 blur 能力后启用半透明基底、blur、saturate、边缘、高光、阴影和选中胶囊；Safari、Firefox 等环境停留在这一层也必须完整可用。
+3. **Chromium SVG 增强**：在 CSS 玻璃材质之上尝试原创边缘折射；CSS 能力检测只是结构安全门槛，不能证明浏览器真正支持 SVG backdrop 折射，因此只对已人工验证的 Chromium 版本作增强声明。
 
-- 基础效果使用 LESS/CSS：透明基底、blur、saturate、边缘、高光、阴影和选中胶囊。
-- Chromium 使用组件内部原创 SVG filter 做轻微边缘折射。
-- SVG 增强不复制背景、不加载外部素材、不引用外部 filter id。
-- 不引入 Canvas、WebGL、Three.js、动画库或新运行时依赖。
-- 不使用持续 pointer tracking、ResizeObserver 或空闲状态 `requestAnimationFrame`。
-- 不启用无限流光动画；只保留选择和按压状态过渡。
-- reduced-motion 下关闭 transform 和 transition。
+无论增强是否生效，CSS fallback 都必须独立存在。方案不使用 UA 判断、背景复制、外部素材、外部 filter id、Canvas、WebGL、新运行时依赖、持续 pointer tracking、额外 ResizeObserver、空闲 rAF 或无限动画；reduced-motion 下关闭 transform 和 transition。
 
-## 6. 两仓库实现要求
+## 6. 决策理由与阻塞门槛
 
-### `tdesign-common`
+- 采用 `effect` 而不是新增 `round-glass` shape，是为了保持形状和材质正交，降低未来扩展成本。
+- 不复制背景，是为了保持组件对滚动容器、动态背景、主题和不同业务布局的泛用性。
+- 不暴露 SVG 参数，是为了防止内部浏览器实现固化为公共 API。
+- SVG 位移场必须使用归一化坐标或等效的尺寸无关设计，不能绑定固定 TabBar 宽高。
+- backdrop 采样受绘制顺序和 Backdrop Root 影响，不能仅凭 CSS 层级推断结果。正式实现前必须先完成 Chromium 图层拓扑原型，比较 optics 位于基础层上方、下方等候选结构。
+- 只有原型证明边缘折射可见、中心清晰、无接缝，并在代表性尺寸、DPR、主题和滚动场景下稳定，才能继续 SVG 实现；失败时必须暂停并重新评估，不能用普通高光冒充折射。
 
-- 根容器不得直接设置 `backdrop-filter`；使用 `::before` 基础材质层实现半透明基底、背景模糊和饱和度，避免建立 Backdrop Root 后阻断内部折射。
-- 增加 ring-masked optics 层样式，使折射只发生在胶囊边缘。
-- optics 与基础材质层同级绘制，明确基础材质、optics、TabBarItem 内容和 `::after` 的绘制顺序与 z-index：optics 位于基础材质之上、内容之下，内容位于所有装饰层之上；必须验证 optics 采样的是预期 backdrop，而不是已经完成的基础模糊层。不使用 `overflow: hidden` 裁剪现有二级菜单。
-- optics 必须使用 `position: absolute`、`inset: 0`、`flex: none`，不得作为 flex item 参与 TabBarItem 宽度计算。SVG defs 宿主必须使用 `position: absolute`、`width: 0`、`height: 0`、`flex: none`、`pointer-events: none`，不得改变 TabBar 高度或占位高度；所有装饰伪元素和实体节点均不得捕获指针事件。
-- `theme="tag"` 时选中项使用半透明内胶囊，并调整内胶囊不透明度、边缘亮度和品牌色内容；`theme="normal"` 保留现有普通选中内容态，只调整语义文字和图标颜色，不新增内胶囊。未选中项继续使用现有语义文字色。
-- 在 `tab-bar/_var.less` 和 `tab-bar-item/_var.less` 声明公开 CSS variables，再在 `style/mobile/theme/_components.less` 提供 light/dark 覆盖。
-- 默认先输出不依赖 `@supports`、CSS custom properties 或 `backdrop-filter` 的静态高不透明度基底，再输出使用 CSS variables 的覆盖声明；支持 custom properties 的浏览器使用后者，旧浏览器保留前者。仅在正向 `@supports` 检测到 blur 能力后降低基底遮蔽并启用 blur/saturate。optics 默认无填充、无滤镜，只有 mask、mask-composite 和 CSS blur 能力均满足时才启用 ring mask 与 SVG URL filter；标准实现使用 `mask-composite: exclude`，WebKit 实现使用 `-webkit-mask-composite: xor`，任一能力不满足时保持视觉中性。
-- 修复 TabBar 当前重复的 safe-area 选择器，不做其他无关重构。
-- 中英文 API 文档只新增对应 Demo 入口，不重排无关内容；`round-glass` 仅是 Demo 文件或文档块标识，不代表公共 API 或 `shape` 值，公共调用方式始终为 `shape="round" effect="glass"`。
+具体 class、私有 CSS variable、图层职责、fallback 声明顺序、测试矩阵和完成定义全部由[实施计划](./2_TabBar%20液态玻璃双仓库实现计划.md)维护。
 
-### `tdesign-mobile-vue`
+## 7. 移交与交付边界
 
-- 更新 `type.ts`、生成式 props 文件和中英文文档中的 `effect` 定义。
-- 计算 `isGlass = effect === 'glass' && shape === 'round'`，theme 不参与增强 DOM 生命周期。
-- 客户端挂载后使用 document 级共享计数器为每个实例生成唯一 filter id。优先使用 `Symbol.for('tdesign.tab-bar.glass-filter-id')`，当 `Symbol` 或 `Symbol.for` 不可用时使用长命名字符串键 fallback；两种键共享相同计数语义，避免多个 app、重复 bundle 或 HMR 实例发生 ID 冲突。
-- 只在 glass 模式渲染 `aria-hidden="true"` SVG defs 和同时具备 `aria-hidden="true"`、`pointer-events: none` 的 optics 层；两者均不得参与 flex 布局。
-- SVG 使用独立设计的静态程序位移场和小幅 `feDisplacementMap`；不得参考现有滤镜节点顺序和数值。
-- 位移场几何使用 `objectBoundingBox` 或等效的归一化坐标；即使滤镜区域使用 `userSpaceOnUse`，也不得把位移参数绑定到固定 TabBar 宽高。同一套滤镜参数应覆盖 320px、390px、430px 和不同 DPR。
-- SSR 和首次 hydration 不访问 `window`、`navigator` 等浏览器全局。
-- 动态切换 effect 或 shape 时正确增加、移除增强 DOM；切换 theme 仅更新选中项样式。
-- 新增独立 `round-glass.vue` Demo（该名称仅为 Demo 标识，不代表公共 API），使用原创 CSS 色块、线条和内容作为可观察背景。
-- 更新 `src/_common` 到 common PR 的精确提交，并验证全新 clone 能初始化该 submodule。
-- 不提交任何无关 snapshot、格式化或文档改写。
-- 正式实现 SVG 增强前必须完成最小 Chromium 原型，覆盖 320px、390px、430px、浅色/暗色、多色背景、滚动场景和 DPR 1/2/3。只有在边缘折射可见、中心内容清晰、无接缝和明显尺寸差异时，才能进入正式实现；若不满足条件则暂停 SVG 实现并重新评估，不得以轻量边缘光学效果替代 Chromium 边缘折射目标。
-
-## 7. 测试与验收
-
-必须新增或验证：
-
-- 默认 normal 模式没有 glass class、SVG 和 optics 层。
-- `effect="glass" + shape="round"` 在 normal/tag theme 下均正确启用 glass。
-- 无效组合保持普通模式。
-- 动态切换 effect/shape 可以清理和恢复增强层，切换 theme 不重建外壳。
-- 同一文档中的多个 TabBar 和多个 Vue app 实例的 filter id 不重复。
-- Demo snapshot 中将动态 filter ID 归一化为稳定占位符；具体 ID 唯一性仅通过独立行为测试验证，不把递增序号写入长期 snapshot。
-- 在不提供 `Symbol.for` 的模拟环境中，glass 模式仍能挂载并保持 CSS fallback 可读，不抛出运行时异常。
-- `renderToString` 不输出增强 DOM，hydration 无警告，挂载后才增加 SVG 与 optics。
-- 原有点击、`v-model`、fixed、placeholder、safe-area 行为不回归。
-- glass 模式新增装饰节点后，TabBarItem 的 flex 计算、宽高、placeholder 高度和 safe-area 高度与基线一致。
-- 装饰节点不可聚焦、不参与辅助技术树。
-- reduced-motion 下没有缩放和过渡。
-- 至少验证一个 Desktop Chrome stable 版本和一个 Android Chrome 或 Android WebView 环境，并在 PR 中记录具体版本；仅在这些已验证的 Chromium 环境中声明 SVG 边缘折射增强。Safari/Firefox 和其他未验证环境显示完整 CSS fallback。
-- light/dark、纯色/多色背景、320×844、390×844 与 430×932 视口，以及 DPR 1/2/3 的代表性组合均无文字遮挡或层级错误。
-- 空闲状态无 rAF、无持续重绘、无监听器增长。
-
-建议验证命令：
-
-- common：`pnpm lint`、`pnpm test:unit`
-- mobile-vue：`npm run test:demo`、TabBar 单测、`npm run test`、`npm run lint`、`npm run build`、`npm run site:preview`
-- common PR 触发的五个关联框架 lint/test/build/preview 必须全部通过。
-- 在全新 clone 中执行 submodule 初始化并重复关键构建。
-
-交付截图至少包括：浅色、暗色、Safari/Firefox fallback、动态选中四组；另提供短录屏展示切换和 reduced-motion。
-
-## 8. 提交顺序
-
-1. 从 `tdesign-common/develop` 创建独立 feature branch并完成公共实现。
-2. 推送 common commit，创建 common PR。
-3. 从 `tdesign-mobile-vue/develop` 创建配套 branch，指向该 common commit。
-4. 完成 API、增强层、测试和 Demo，创建 mobile-vue PR。
-5. 两个 PR 互相链接，并关联 issue #2571。
-6. PR 描述写明原创实现、浏览器能力矩阵、fallback、测试结果和零新增依赖。
-7. 不声称 Safari/Firefox 支持真实 SVG 折射；不需要 Figma，代码 UI、Demo、截图和录屏构成 UI 设计交付。
-
-## 9. 完成定义
-
-只有同时满足以下条件才算完成：
-
-- 两个 PR 均可独立审查且互相正确关联。
-- normal 模式零视觉和 DOM 回归。
-- glass 模式在已验证的 Chromium 环境中有原创边缘折射，在 Safari/Firefox 和其他未验证环境有完整 fallback。
-- 暗色、reduced-motion、SSR、多实例和动态切换均经过验证。
-- 没有第三方代码、SVG、素材或参数被直接复用。
-- 没有背景复制、外部 filter id、Canvas/WebGL 或新增运行时依赖。
-- 所有相关测试、lint、构建、Demo 和截图验证完成。
+- 正式 feature branch 必须从最新 `upstream/develop` 创建，不能从当前包含内部计划文档 commit 的本地 `develop` 直接分支。
+- 当前 checkout 保留计划文档和 docs 记录点；正式实现使用从 `upstream/develop` 创建的独立 Git worktree，不在当前 planning checkout 中直接切换到功能分支。
+- 本文和实施计划仅作为本地记录点，不得进入官方竞争 PR；正式 PR 只包含功能、公共 API 文档、Demo、测试和必要生成物。
+- 先提交 `tdesign-common` PR，再让 `tdesign-mobile-vue/src/_common` 固定到 common PR 的精确 commit；两个 PR 互相链接并关联 issue #2571。
+- 两个仓库都不得带入无关 snapshot、格式化、文档重写或顺手重构。
+- PR 描述必须写明原创实现边界、三级浏览器能力矩阵、测试结果和零新增运行时依赖。
+- 不声称 Safari/Firefox 支持真实 SVG 折射；代码 UI、可运行 Demo、截图和录屏构成 UI 设计交付，不额外提交 Figma。
