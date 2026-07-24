@@ -64,6 +64,13 @@
     }
   }
 
+  // Keep icons optically centered in the classic tag item, whose content stacks vertically.
+  .@{item}__content--tag &__icon {
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
   //.@{prefix}-badge--count {
   //// 缩放0.83是因为设计稿字体10px，而chrome最小12px
   //  transform: translate(50%, -10%) scale(0.83) !important; // stylelint-disable-line
