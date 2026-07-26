@@ -22,7 +22,7 @@
 | ------------------ | ------------------------------------------------------------------------------------ | ---------------------------- | --------------------------------------------------------------- | ------------------------------------------ |
 | tdesign-common     | `/Users/chenyixuan/Coding/tdesign-common-tab-bar-liquid-glass`                       | `codex/tab-bar-liquid-glass` | `https://github.com/Tencent/tdesign-common.git` / `develop`     | `87824d0d280408303e350f3b7ec7736ae72728c6` |
 | tdesign-mobile-vue | `/Users/chenyixuan/Coding/tdesign-mobile-vue-tab-bar-liquid-glass`                   | `codex/tab-bar-liquid-glass` | `https://github.com/Tencent/tdesign-mobile-vue.git` / `develop` | `7013c55b46b7e02e533b3c36d2aa3cff0debfd2f` |
-| tdesign-api        | `/Users/chenyixuan/Coding/tdesign-common/output/liquid-glass-acceptance/tdesign-api` | `codex/tab-bar-liquid-glass` | `https://github.com/TDesignOteam/tdesign-api.git` / `main`      | `bb9855f9464720a2a278779f7c0f2d381bbbe79d` |
+| tdesign-api        | `/Users/chenyixuan/Coding/tdesign-api`（2026-07-26 自 `output/liquid-glass-acceptance/` 迁出） | `codex/tab-bar-liquid-glass` | `https://github.com/TDesignOteam/tdesign-api.git` / `main`      | `bb9855f9464720a2a278779f7c0f2d381bbbe79d` |
 
 基线记录时间：2026-07-24T18:01:15+08:00
 
