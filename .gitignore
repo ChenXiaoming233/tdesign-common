@@ -43,3 +43,13 @@ test-report.html
 # lint
 .eslintcache
 .stylelintcache
+
+# TabBar Liquid Glass 本地验收产物（决策记录 md 保留追踪，截图/trace/临时仓库不入库）
+output/*
+!output/liquid-glass-acceptance/
+output/liquid-glass-acceptance/*
+!output/liquid-glass-acceptance/*.md
+
+# 本地工具目录
+.playwright-cli/
+.claude/

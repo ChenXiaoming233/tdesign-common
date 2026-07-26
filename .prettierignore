@@ -19,3 +19,7 @@ yarn.lock
 .vscode
 .idea
 *.log
+
+# 本地验收产物与工具目录
+output
+.playwright-cli

@@ -13,3 +13,6 @@ lib
 # test
 coverage
 test-report.html
+
+# 本地验收产物
+output

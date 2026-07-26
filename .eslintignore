@@ -6,3 +6,6 @@ static
 site
 !.github
 **/*/*.test.js
+
+## 本地验收产物
+output
