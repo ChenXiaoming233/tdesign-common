@@ -36,13 +36,11 @@ toc: false
 
 #### Liquid Glass material
 
-Set `effect="glass"` to enable the Liquid Glass material. It does not change `shape`, fixed positioning, safe-area, or placeholder behavior. When enhancement is unavailable, the component retains a readable translucent background, inner sheen, and shadow.
+{{ glass }}
 
-Pair it with `shape="round"` for an inset floating capsule, compact icon-and-label layout, and a concentric selected state. Pressing an item scales its icon, label, and the shared selection capsule together; a long press holds the scale until release. `shape="normal"` retains the full-width rectangular layout.
+Set `effect="glass"` to enable the Liquid Glass material, preferably with `shape="round"`. When enhancement is unavailable, the component retains a readable and interactive translucent fallback.
 
-Use `--td-tab-bar-glass-bg-color` and `--td-tab-bar-glass-shadow` to customize the stable material styles. `--td-tab-bar-glass-fallback-blur` controls the Gaussian blur radius when SVG enhancement is unavailable. Glass does not use a separate border; its contour is expressed by a top inner sheen that fades downward along both upper corner arcs. `--td-tab-bar-glass-sheen-opacity` controls the material sheen opacity. The selected capsule color is controlled by `--td-tab-bar-selected-bg-color` and `--td-tab-bar-selected-bg-opacity`; the latter uses a percentage. `--td-tab-bar-selected-sheen-opacity` controls its sheen opacity, while `--td-tab-bar-selected-border-color` controls the normal round selected outline. Refraction strength and texture parameters remain internal in the initial API.
-
-### 02 Custom
+### 03 Custom
 
 #### Custom style
 
