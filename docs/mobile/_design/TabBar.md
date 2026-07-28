@@ -14,6 +14,7 @@
   <div class="item">
     <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-1.png" />
   </div>
+</div>
 
 ### 推荐/慎用示例
 
@@ -32,6 +33,7 @@
     <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-3.png" />
     <img class="tag" src="https://tdesign.gtimg.com/site/doc/good.png" />
   </div>
+</div>
 
 <hr />
 
@@ -42,6 +44,7 @@
     <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-5.png" />
     <img class="tag" src="https://tdesign.gtimg.com/site/doc/good.png" />
   </div>
+</div>
 
 <hr />
 
