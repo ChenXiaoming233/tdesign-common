@@ -14,6 +14,10 @@
   <div class="item">
     <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-1.png" />
   </div>
+
+  <div class="item">
+    <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-2.png" />
+  </div>
 </div>
 
 ### 推荐/慎用示例
@@ -33,6 +37,11 @@
     <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-3.png" />
     <img class="tag" src="https://tdesign.gtimg.com/site/doc/good.png" />
   </div>
+
+  <div class="item">
+    <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-4.png" />
+    <img class="tag" src="https://tdesign.gtimg.com/site/doc/bad.png" />
+  </div>
 </div>
 
 <hr />
@@ -43,6 +52,11 @@
   <div class="item">
     <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-5.png" />
     <img class="tag" src="https://tdesign.gtimg.com/site/doc/good.png" />
+  </div>
+
+  <div class="item">
+    <img src="https://tdesign.gtimg.com/site/design/mobile-guide/tab-bar/tab-bar-6.png" />
+    <img class="tag" src="https://tdesign.gtimg.com/site/doc/bad.png" />
   </div>
 </div>
 
